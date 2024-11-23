@@ -1,35 +1,20 @@
 import flet as ft
 
+from router import RouteContext
 
-class IndexViewRouteContext:
-    def __init__(self, routerInstance, rootRoute: str):
-        self.router = routerInstance
-        self.rootRoute = rootRoute
+
+#####IndexView
+
+class IndexViewRouteContext(RouteContext):
+    def __init__(self, routerInstance, rootRoute):
+        super().__init__(routerInstance, rootRoute, IndexView, {})
+
+        #Overwrite the routeTable
         self.routeTable = {"/": lambda : self.go_panel(self.viewInstance.build_first_panel),
-                           "/second": lambda : self.go_panel(self.viewInstance.build_second_panel),
-                           "/third": lambda : self.go_panel(self.viewInstance.build_third_panel),
-                           "/about": lambda : self.go_new_view(AboutViewRouteContext(self.router, self.rootRoute+"/about")),
+                            "/second": lambda : self.go_panel(self.viewInstance.build_second_panel),
+                            "/third": lambda : self.go_panel(self.viewInstance.build_third_panel),
+                            "/about": lambda : self.go_new_view(AboutViewRouteContext(self.router, self.rootRoute+"/about")),
                            }
-        self.viewInstance = IndexView(self.router)
-    
-    def can_match(self, route:str):
-        if route.startswith(self.rootRoute):
-            if route[len(self.rootRoute):] in self.routeTable:
-                return True
-        return False
-
-    def set_active_if_view_not_active(self):
-        if self.router.get_current_view() != self.viewInstance:
-            self.router.push_back_view(self.viewInstance)
-
-    def go_panel(self, build_func:callable):
-        self.set_active_if_view_not_active()
-        build_func()
-    
-    def go_new_view(self, newRouteContext):
-        self.router.new_route_context(newRouteContext)
-
-
 
 
 class IndexView(ft.View):
@@ -69,31 +54,19 @@ class IndexView(ft.View):
         self.add_back_button()
 
 
-class AboutViewRouteContext:
-    def __init__(self, routerInstance, rootRoute: str):
-        self.router = routerInstance
-        self.rootRoute = rootRoute
+
+
+#####AboutView
+
+class AboutViewRouteContext(RouteContext):
+    def __init__(self, routerInstance, rootRoute):
+        super().__init__(routerInstance, rootRoute, AboutView, {})
+
+        #Overwrite the routeTable
         self.routeTable = {"": lambda : self.go_panel(self.viewInstance.build_controls),
                            "/version": lambda : self.go_panel(self.viewInstance.build_version_controls),
-                           }
-        self.viewInstance = AboutView(self.router)
-    
-    def can_match(self, route:str):
-        if route.startswith(self.rootRoute):
-            if route[len(self.rootRoute):] in self.routeTable:
-                return True
-        return False
+                          }
 
-    def set_active_if_view_not_active(self):
-        if self.router.get_current_view() != self.viewInstance:
-            self.router.push_back_view(self.viewInstance)
-
-    def go_panel(self, build_func:callable):
-        self.set_active_if_view_not_active()
-        build_func()
-    
-    def go_new_view(self, newRouteContext):
-        self.router.new_route_context(newRouteContext)
 
 
 class AboutView(ft.View):

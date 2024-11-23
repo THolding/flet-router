@@ -73,15 +73,28 @@ class Router:
 
 
 
-###TODO: generatic route context
+#Route context performs the mapping between a subroutes (within a single view) and changes to the view's controls
 class RouteContext:
-    def __init__(self, routerInstance: Router, WrappedViewType: ft.View, routeTable: dict):
-        pass
+    def __init__(self, routerInstance: Router, rootRoute: str, WrappedViewType: ft.View, routeTable: dict):
+        self.router = routerInstance
+        self.rootRoute = rootRoute
+        self.routeTable = routeTable
+        #Create the view instance which this route context corresponds to
+        self.viewInstance = WrappedViewType(self.router)
+    
+    def can_match(self, route:str):
+        if route.startswith(self.rootRoute):
+            if route[len(self.rootRoute):] in self.routeTable:
+                return True
+        return False
 
+    def set_active_if_view_not_active(self):
+        if self.router.get_current_view() != self.viewInstance:
+            self.router.push_back_view(self.viewInstance)
 
-
-
-class PopCultureUIRouteContext(RouteContext):
-    def __init__(self, popCultureAppInstance, routerInstance: Router, WrappedViewType: ft.View, routeTable: dict):
-        super().__init__(routerInstance, WrappedViewType, routeTable)
-        self.appInstance = popCultureAppInstance
+    def go_panel(self, build_func:callable):
+        self.set_active_if_view_not_active()
+        build_func()
+    
+    def go_new_view(self, newRouteContext):
+        self.router.new_route_context(newRouteContext)
